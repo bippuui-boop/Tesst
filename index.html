@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TikTok Native Login & Unlike</title>
+    <style>
+        :root {
+            --bg: #0f1115;
+            --card: #181b22;
+            --accent: #fe2c55;
+            --accent-hover: #e11d43;
+            --text: #f1f1f1;
+            --muted: #8a8f98;
+            --success: #00ffcc;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--card);
+            border: 1px solid #2a2e39;
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        h2 {
+            font-size: 18px;
+            color: var(--text);
+            text-align: center;
+        }
+        p {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+        iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #2a2e39;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .status-box {
+            background: #111318;
+            border: 1px solid #222630;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--success);
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:active {
+            background-color: var(--accent-hover);
+        }
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>TikTok Browser Login & Unlike</h2>
+        <p>Đăng nhập tài khoản trực tiếp qua khung bên dưới, sau đó chuyển đến trang "Đã thích" rồi bấm bắt đầu dọn dẹp.</p>
+        
+        <!-- Khung nhúng trang đăng nhập TikTok -->
+        <iframe src="https://www.tiktok.com/login" id="tiktok-frame"></iframe>
+
+        <div class="status-box" id="status-display">
+            Trạng thái: Đang chờ boss man đăng nhập...
+        </div>
+
+        <button id="action-btn" onclick="toggleEngine()">Bắt đầu xóa tim</button>
+        <div class="footer">Axiom iOS Stay Suite</div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let removedCount = 0;
+
+        function logStatus(msg) {
+            document.getElementById('status-display').innerText = msg;
+            console.log(`[CLEANER]: ${msg}`);
+        }
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function toggleEngine() {
+            const btn = document.getElementById('action-btn');
+
+            if (!isRunning) {
+                isRunning = true;
+                btn.innerText = "Dừng lại";
+                btn.style.backgroundColor = "#333";
+                logStatus("Đang tiến hành quét DOM tìm video đã thích...");
+
+                let cycles = 0;
+                while (isRunning && cycles < 100) {
+                    cycles++;
+                    // Tìm các nút tim trên trang quản lý video đã thích của TikTok
+                    const buttons = document.querySelectorAll('div[data-e2e="like-icon"], button[aria-label*="Unlike"]');
+
+                    if (buttons.length === 0) {
+                        logStatus(`Không thấy nút tim, đang cuộn xuống... (${cycles})`);
+                        window.scrollBy(0, window.innerHeight * 1.5);
+                        await sleep(2500);
+                        continue;
+                    }
+
+                    for (const btnEl of buttons) {
+                        if (!isRunning) break;
+                        try {
+                            btnEl.click();
+                            removedCount++;
+                            logStatus(`Đã gỡ: ${removedCount} tim`);
+                            await sleep(1400); // Khoảng nghỉ chống quét spam
+                        } catch (err) {
+                            console.error("Lỗi khi click:", err);
+                        }
+                    }
+
+                    window.scrollBy(0, window.innerHeight * 1.5);
+                    await sleep(2000);
+                }
+
+                logStatus(`Hoàn tất! Đã dọn sạch ${removedCount} tim.`);
+                isRunning = false;
+                btn.innerText = "Bắt đầu xóa tim";
+                btn.style.backgroundColor = "var(--accent)";
+            } else {
+                isRunning = false;
+                btn.innerText = "Bắt đầu xóa tim";
+                btn.style.backgroundColor = "var(--accent)";
+                logStatus("Đã tạm dừng tiến trình.");
+            }
+        }
+    </script>
+</body>
+</html>
